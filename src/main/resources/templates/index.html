@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1"/>
+<title>Site Scraper - SCRAP</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+	<script src="/jquery-easy-loading/jquery.loading.js"></script>
+	<link href="/jquery-easy-loading/jquery.loading.css" rel="stylesheet">
+	
+	<style>
+		pre{
+			min-height:500px;
+			max-height: 500px;
+			overflow:scroll;
+		}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">WEBSITE SCRAPER</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Scrap Website</a></li>
+				<li><a href="/dynamic/list">List Website</a></li>
+				<li><a href="/dynamic/create">Create Website</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container">
+		<h3><span class="label label-primary">TEST SCRAP WEBSITE</span></h3><hr/>
+		<div class="form-group">
+			  <div class="row col-sm-12" style="margin-bottom:5px;">
+				  <label class="label label-default">SELECT WEBSITE:</label>
+			  </div>
+			  
+			  <div class="row">
+				  <div class="col-sm-11">
+					  <select class="form-control" id="selectWebsite">
+					  	<option value="0">[ Select Website ]</option>
+					  	<option th:each="web: ${websites}" th:text="${web.websiteName}" th:value="${web.id}">All</option>
+					  </select>
+				  </div>
+				  <div class="col-sm-1">
+				  		<button class="btn btn-primary" id="btnScrap">Scrap</button>
+				  </div>
+			  </div>
+			  <div id="responseData" style="margin-top:10px"></div>	
+		</div>
+	</div>
+	
+	<script th:inline="javascript">
+		(function(){
+			
+			var websiteId = 0;
+			
+			$('#btnScrap').on('click', function(){
+				
+				//check if the user not select any website
+				if(websiteId == 0){
+					alert('Please choose a website to test scrap!');					
+					return;
+				} 
+				
+				console.log(websiteId);
+				
+				//apply theme for loading bar
+				$("#responseData").loading({theme: 'dark'});
+				
+				//submit data to server
+				$.ajax({
+					url: '/dynamic/scrap',
+					data: {
+						websiteId: websiteId
+					},
+					method: 'GET',
+					success: function(jsonResponse){
+						$('#responseData').html("<pre>" + JSON.stringify(jsonResponse, undefined,4) + "</pre>");
+						$("#responseData").loading("stop");
+					},
+					error: function(jsonResponse){
+						console.log(jsonResponse);
+						$('#responseData').html("<pre>" + JSON.stringify(jsonResponse, undefined,4) + "</pre>");
+						$("#responseData").loading("stop");
+					}
+				}); 
+			});
+			
+			//listen on change event
+			$('#selectWebsite').change(function(){
+				websiteId = this.value;
+				console.log('web', websiteId);
+			});
+		})();	
+	</script>
+</body>
+</html>

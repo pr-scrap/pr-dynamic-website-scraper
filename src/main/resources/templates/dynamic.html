@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1"/>
+<title>PPOMPPU - SCRAP</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+	<script src="/jquery-easy-loading/jquery.loading.js"></script>
+	<link href="/jquery-easy-loading/jquery.loading.css" rel="stylesheet">
+	
+	<style>
+		pre{
+			min-height:500px;
+			max-height: 500px;
+			overflow:scroll;
+		}
+		.riquired{
+			color:red;
+		}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">WEBSITE SCRAPER</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li><a href="/home">Scrap Website</a></li>
+				<li><a href="/dynamic/list">List Website</a></li>
+				<li class="active"><a href="#">Create Website</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container">
+		<h3><span class="label label-primary" th:text="${addStatus?'CREATE WEBSITE': 'UPDATE WEBSITE'}">CREATE WEBSITE</span></h3>
+
+		<form id="createWebsite" class="form-horizontal" th:action="@{/dynamic/create}" th:object="${dynamicWebsite}" method="POST">
+			
+			<input type="hidden" th:field="*{id}">
+			
+			<hr/><label class="label label-default">WEBSITE</label>
+
+			<div class="form-group">
+					<label class="control-label col-sm-2"><span class="riquired">*</span>name:</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{websiteName}" class="form-control" required="required" placeholder="Website's Name">
+					</div>
+			</div>
+			<div class="form-group">
+					<label class="control-label col-sm-2"><span class="riquired">*</span>url:</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{websiteUrl}"  class="form-control" required="required" placeholder="Website's Url">
+					</div>
+			</div>
+			
+			<hr/><label class="label label-default">REQUIRED SELECTOR</label>
+			<div class="form-group">
+					<label class="control-label col-sm-2"><span class="riquired">*</span>url_to_scrap:</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{urlToScrap}" class="form-control" required="required" placeholder="Url To Scrap Selector">
+					</div>
+			</div>
+			<div class="form-group">
+					<label class="control-label col-sm-2"><span class="riquired">*</span>row:</label>
+					<div class="col-sm-10">
+						<input type="text" th:field="*{rowSelector}" class="form-control" required="required" placeholder="Row Selector">
+					</div>
+			</div>
+			
+			<hr><label class="label label-default">FIELD & SELECTOR</label>
+			<div class="form-group">
+				<div id="dynamicField">
+				
+					<div th:if="${addStatus}" class="col-sm-12">
+						<div class="col-sm-offset-2 col-sm-3">
+							<div class="form-group">
+								<label><span class="riquired">*</span>field:</label> 
+								<input type="text" class="form-control" placeholder="Enter Field Name" name="field" required>
+							</div>
+						</div>
+						<div class="col-sm-offset-1 col-sm-3">
+							<div class="form-group">
+								<label><span class="riquired">*</span>selector:</label> 
+								<input type="text" class="form-control" placeholder="Enter Selector" name="selector" required>
+							</div>
+						</div>
+						<div class="col-sm-offset-1 col-sm-2">
+							<div class="form-group">
+								<label><span class="riquired">*</span>content_type:</label> 
+								<select class="form-control" name="contentType">
+									<option value="TEXT">TEXT</option>
+									<option value="IMAGE">IMAGE</option>
+									<option value="LINK">LINK</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div th:unless="${addStatus}" class="col-sm-12" th:each="f: *{fieldSelectors}">
+						<div class="col-sm-offset-2 col-sm-3">
+							<div class="form-group">
+								<label th:if="${fStat.index==0}"><span class="riquired">*</span>field:</label> 
+								<input type="text" class="form-control" placeholder="Enter Field Name" name="field" th:value="${f.field}" required>
+							</div>
+						</div>
+						<div class="col-sm-offset-1 col-sm-3">
+							<div class="form-group">
+								<label th:if="${fStat.index==0}"><span class="riquired">*</span>selector:</label> 
+								<input type="text" class="form-control" placeholder="Enter Selector" name="selector" th:value="${f.selector}" required>
+							</div>
+						</div>
+						<div class="col-sm-offset-1 col-sm-2">
+							<div class="form-group">
+								<label th:if="${fStat.index==0}"><span class="riquired">*</span>content_type:</label> 
+								<select class="form-control" name="contentType">
+									<option value="TEXT" th:selected="${'TEXT'== f.contentType + ''}">TEXT</option>
+									<option value="IMAGE" th:selected="${'IMAGE' == f.contentType + ''}">IMAGE</option>
+									<option value="LINK" th:selected="${'LINK' == f.contentType + ''}">LINK</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+				<div class="col-sm-12">
+					<div class="pull-right">
+						<input title="remove field" class="btn btn-danger" type="button" value="-" id="btnRemoveField"/>						
+						<input title="add more field" class="btn btn-default" type="button" value="+" id="btnAddMoreField"/>
+					</div>
+				</div>
+			</div>	
+			
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10"><hr/>
+					<input type="submit" class="btn btn-primary pull-right" th:value="${addStatus?'CREATE': 'UPDATE'}"/>
+					<a href="/dynamic/list" style="margin-right:5px;" class="btn btn-default pull-right">CANCEL</a>
+				</div>
+			</div>
+		</form>
+	</div>
+	
+	<script th:inline="javascript">
+		(function() {
+
+			var addStatus = [[${addStatus}]];
+			
+			//count field & selector
+			var fieldSelectorSize = $('#dynamicField > div').length;
+			
+			var index = fieldSelectorSize;
+			
+			$('#btnAddMoreField').on('click', function(){
+				
+				var field = `<div class="col-sm-12">
+								<div class="col-sm-offset-2 col-sm-3">
+									<div class="form-group">
+										<input type="text" class="form-control" placeholder="Enter Field Name" name="field" required>
+									</div>
+								</div>
+								<div class="col-sm-offset-1 col-sm-3">
+									<div class="form-group">
+										<input type="text" class="form-control" placeholder="Enter Selector" name="selector" required>
+									</div>
+								</div>
+								<div class="col-sm-offset-1 col-sm-2">
+									<div class="form-group">
+										<select class="form-control" name="contentType">
+											<option value="TEXT">TEXT</option>
+											<option value="IMAGE">IMAGE</option>
+											<option value="LINK">LINK</option>
+										</select>
+									</div>
+								</div>
+							</div>`;
+				
+				$('#dynamicField').append(field);
+				
+				index++;
+			});
+			
+			$('#btnRemoveField').on('click', function(){
+				if(index != 1){
+					$('#dynamicField').children().last().remove();
+					index--;					
+				}
+			});
+			
+			$('form#createWebsite').submit(function(evt){
+				evt.preventDefault();
+				console.log($(this).serialize());
+				
+				//data send to server
+				var requestBody = { 
+					fieldSelectors: []
+				};
+				
+				//store temporary data
+				var fieldStatus = {
+					field: { value: null, isDone: false },
+					selector: { value: null, isDone: false },
+					contentType: { value: null, isDone: false }
+				};
+				
+				//get form's data
+				var formData = $(this).serialize();
+				
+				formData.split('&').forEach(function(data){
+					
+					var field = data.split('=')[0];
+					var value = data.split('=')[1];
+					
+					//if(field == 'urlToScrap' || field == 'websiteUrl')
+					value = decodeURIComponent(value);
+					
+					if(field === 'field'){
+						fieldStatus.field = {
+							value: value,
+							isDone: true
+						}
+					}else if(field === 'selector'){
+						fieldStatus.selector = {
+							value: value,
+							isDone: true
+						}
+					}else if(field === 'contentType'){
+						fieldStatus.contentType = {
+							value: value,
+							isDone: true
+						}
+					}else{
+						requestBody[field] = value;						
+					}
+					
+					//if those 3 attributes done
+					if(fieldStatus.field.isDone && fieldStatus.selector.isDone && fieldStatus.contentType.isDone){
+						
+						//push data to field's selector
+						requestBody.fieldSelectors.push({
+							field: fieldStatus.field.value,
+							selector: fieldStatus.selector.value,
+							contentType: fieldStatus.contentType.value
+						});
+						
+						//reset value
+						fieldStatus = {
+							field: { value: null, isDone: false },
+							selector: { value: null, isDone: false },
+							contentType: { value: null, isDone: false }
+						};
+					}
+				});
+				
+				console.log(requestBody);
+				
+				//submit data to server
+				$.ajax({
+					url: '/dynamic/create',
+					method: addStatus ? 'POST' : 'PUT',
+					data: JSON.stringify(requestBody),
+					headers: {
+						'content-type': 'application/json'
+					},
+					success: function(response){
+						console.log(response);
+						location.replace('/');
+					},
+					error: function(error){
+						console.log(error);
+					}
+				});
+				
+			});
+		})();
+	</script>
+</body>
+</html>

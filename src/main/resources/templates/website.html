@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1"/>
+<title>PPOMPPU - SCRAP</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+	<script src="/jquery-easy-loading/jquery.loading.js"></script>
+	<link href="/jquery-easy-loading/jquery.loading.css" rel="stylesheet">
+	
+	<style>
+		pre{
+			min-height:500px;
+			max-height: 500px;
+			overflow:scroll;
+		}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">WEBSITE SCRAPER</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li><a href="/home">Scrap Website</a></li>
+				<li class="active"><a href="#">List Website</a></li>
+				<li><a href="/dynamic/create">Create Website</a></li>
+			</ul>
+		</div>
+	</nav>
+	<div class="container-fluid">
+		<h3><span class="label label-primary">WEBSITE SELECTORS</span></h3><hr/>
+		<table class="table table-striped">
+			<thead>
+		      <tr>
+		      	<th>no</th>
+		      	<th>website_name</th>
+		        <th>fields [selector]</th>
+		      	<th>website_url</th>
+		        <th>scrap_url</th>
+		        <th>action</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      <tr th:each="web: ${websites}" th:object="${web}">
+		      	<td>
+		      		<span class="label label-default" th:text="${webStat.index+1}"></span>
+		      	</td>
+		      	<td>
+		      		<span class="label label-primary" th:text="*{websiteName}"></span>
+		      	</td>
+		      	<td>
+		      		<span class="label label-default" th:each="f: *{fieldSelectors}" 
+		      			th:object="${f}" th:text="*{field} +' ['+ *{selector} + ']'"></span>
+		      	</td>
+		      	<td>
+		      		<a th:href="*{websiteUrl}" target="_blank" class="label label-primary" th:text="*{websiteUrl}"></a>
+		      	</td>
+		      	<td>
+		      		<a th:href="*{urlToScrap}" target="_blank" class="label label-primary" th:text="*{urlToScrap}"></a>
+		      	</td>
+		        <td>
+		        	<a class="label label-primary" th:href="@{/dynamic/edit(id=*{id})}">Edit</a>
+		        	<a class="label label-danger" href="#" th:id="*{id}" onclick="removeSelector(this)">Remove</a>
+		        </td>
+		      </tr>
+		    </tbody>
+		</table>
+	</div>
+	
+	<script th:inline="javascript">
+		(function(){
+			
+		})();
+		
+		function scrap(self){
+			console.log(self);	
+			var id = $(self).attr('id');
+			
+			if(!confirm('Are you sure to scrap this website?'))
+				return;
+			
+			$.ajax({
+				url:'/dynamic/scrap?id=' + id,
+				method: 'POST',
+				success: function(response){
+					console.log(response);
+					location.reload();
+				},
+				error: function(response){
+					console.log(response);
+				}
+			});
+		}
+		
+		function removeSelector(self){
+			var id = $(self).attr('id');
+			if(!confirm('Are you sure to remove this website?'))
+				return;
+			
+			$.ajax({
+				url: `/dynamic/remove/${id}`,
+				method: 'DELETE',
+				success: function(response){
+					console.log(response);
+					location.reload();
+				},
+				error: function(response){
+					console.log(response);
+				}
+			});
+		}
+	</script>
+</body>
+</html>
